@@ -1,7 +1,10 @@
-2009-08-28  H. Gene Shin  <shin@jimmy.harvard.edu>>
+2020-10-20 Tao Liu <vladimir.liu@gmail.com>
+	Version 1.1.2 python 3 port
+
+2009-08-28  H. Gene Shin  <shin@jimmy.harvard.edu>
 	Version 0.9.8.2 (upgrade sitepro so that it can receive either multiple WIG files 
         and a single BED or a single WIG file and multiple BED files as inputs))
-	
+
 	* sitepro (version 0.6.2)
 
 	Now, sitepro shows the arguments on the screen so that the user easily get what 
