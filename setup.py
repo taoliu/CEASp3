@@ -14,7 +14,7 @@ def main():
           author='H. Gene Shin',
           author_email='shin@jimmy.harvard.edu',
           url='http://liulab.dfci.harvard.edu/CEAS/',
-          package_dir={'CEAS' : 'lib'},
+          package_dir={'CEAS' : 'CEAS'},
           packages=['CEAS'],
           scripts=['bin/ceas', 'bin/ceasBW', 'bin/sitepro', 'bin/siteproBW', 'bin/gca', 'bin/build_genomeBG', 'bin/ChIPAssoc'],
 
