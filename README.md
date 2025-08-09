@@ -77,12 +77,12 @@ gca -b peaks.bed -g refGene.sqlite --span 3000 --name gca_out
 Pre-compute genome background tables for use with CEAS:
 
 ```bash
-build_genomeBG -g refGene.sqlite -w genome.wig -o hg18_bg.sqlite
+./build_genomeBG.sh hg38
 ```
 
 Each script supports `--help` for additional options.
 
 ## License
 
-The package is distributed under the BSD license. See [LICENSE](LICENSE).
+The package is distributed under the Artistic License. See [LICENSE](LICENSE).
 
