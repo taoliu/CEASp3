@@ -22,7 +22,7 @@ If you use CEASp3 please cite:
    pip install .
    ```
 
-   The scripts listed in [`bin/`](bin) such as `ceas`, `ceasBW`, `sitepro`, etc. will be placed on your `PATH`.
+   The scripts listed in [`bin/`](bin) such as `ceas`, `sitepro`, etc. will be placed on your `PATH`.
 
 ## Example usage
 
@@ -39,15 +39,15 @@ ceas -b peaks.bed -g refGene.sqlite --name my_chip
 Generate average signal plots around gene bodies from a WIG track:
 
 ```bash
-ceas -w treat.wig -g refGene.sqlite --name treat_profile --rel-dist 3000 --pf-res 50
+ceas --format wig -w treat.wig -g refGene.sqlite --name treat_profile --rel-dist 3000 --pf-res 50
 ```
 
 ### BigWig support
 
-Work with bigWig signals using `ceasBW`:
+Work with bigWig signals (default):
 
 ```bash
-ceasBW -b peaks.bed -w signal.bw -g refGene.sqlite --name chip_bw
+ceas -b peaks.bed -w signal.bw -g refGene.sqlite --name chip_bw
 ```
 
 ### Site-centric profiling
@@ -55,16 +55,16 @@ ceasBW -b peaks.bed -w signal.bw -g refGene.sqlite --name chip_bw
 Average enrichment around a set of regions:
 
 ```bash
-sitepro -w signal.wig -b motifs.bed --span 1000 --step 20
+sitepro --format wig -w signal.wig -b motifs.bed --span 1000 --step 20
 ```
 
-For bigWig input use:
+For bigWig input (default) use:
 
 ```bash
-siteproBW -w signal.bw -b motifs.bed --span 1000 --step 20
+sitepro -w signal.bw -b motifs.bed --span 1000 --step 20
 ```
 
-`siteproBW` relies on the [`bx-python`](https://github.com/bxlab/bx-python)
+BigWig functionality relies on the [`bx-python`](https://github.com/bxlab/bx-python)
 library for BigWig access. Install it with:
 
 ```bash

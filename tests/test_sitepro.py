@@ -6,10 +6,10 @@ import importlib.util
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-loader = importlib.machinery.SourceFileLoader("siteproBW", str(ROOT / "bin" / "siteproBW"))
+loader = importlib.machinery.SourceFileLoader("sitepro", str(ROOT / "bin" / "sitepro"))
 spec = importlib.util.spec_from_loader(loader.name, loader)
-siteproBW = importlib.util.module_from_spec(spec)
-loader.exec_module(siteproBW)
+sitepro = importlib.util.module_from_spec(spec)
+loader.exec_module(sitepro)
 
 from CEAS.bigwig_utils import summarize_bigwig
 
@@ -35,7 +35,7 @@ class StubBW:
         return arr
 
 
-def test_siteproBW_direction(tmp_path):
+def test_sitepro_direction(tmp_path):
     bw = StubBW()
     span = 100
     pf_res = 100
@@ -62,7 +62,7 @@ def test_siteproBW_direction(tmp_path):
         siteprofs.append(prof)
 
     dump = tmp_path / "dump.txt"
-    siteproBW.dump(str(dump), bedlist, siteprofs)
+    sitepro.dump(str(dump), bedlist, siteprofs)
     lines = [line.strip().split("\t")[-1] for line in dump.read_text().splitlines()]
     assert lines[0] == "1.0,2.0,3.0"
     assert lines[1] == "3.0,2.0,1.0"

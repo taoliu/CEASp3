@@ -31,9 +31,7 @@ urls = { Homepage = "http://liulab.dfci.harvard.edu/CEAS/" }
 packages = ["CEAS"]
 script-files = [
     "bin/ceas",
-    "bin/ceasBW",
     "bin/sitepro",
-    "bin/siteproBW",
     "bin/gca",
     "bin/build_genomeBG",
     "bin/ChIPAssoc",
