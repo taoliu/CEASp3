@@ -33,10 +33,22 @@ def summarize_bigwig(
     span = end - start
     bin_size = span / float(bins)
     results: List[float] = []
+    # ``bx-python`` expects chromosome names as ``bytes`` objects under
+    # Python 3.  The original CEAS code (written for Python 2) freely
+    # passed ``str`` values here which in that environment were actually
+    # byte strings.  When running under Python 3 this results in a
+    # ``TypeError`` like ``expected bytes, str found``.  To maintain a
+    # convenient ``str`` based API we encode any ``str`` chromosome names
+    # before handing them off to :mod:`bx-python`.
+    if isinstance(chrom, str):
+        chrom_bytes = chrom.encode()
+    else:
+        chrom_bytes = chrom
+
     for i in range(bins):
         bin_start = int(start + i * bin_size)
         bin_end = int(start + (i + 1) * bin_size)
-        arr = bw.get_as_array(chrom, bin_start, bin_end)
+        arr = bw.get_as_array(chrom_bytes, bin_start, bin_end)
         if arr is None:
             results.append(float("nan"))
             continue

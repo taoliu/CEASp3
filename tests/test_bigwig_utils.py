@@ -17,6 +17,12 @@ class StubBW:
         }
 
     def get_as_array(self, chrom, start, end):
+        # The real BigWigFile implementation from ``bx-python`` requires
+        # chromosome names to be provided as ``bytes``.  Mimic that
+        # behaviour here so that the tests catch any accidental use of
+        # ``str`` objects which would fail at runtime.
+        if not isinstance(chrom, (bytes, bytearray)):
+            raise TypeError("expected bytes, str found")
         arr = np.empty(end - start)
         arr[:] = np.nan
         for (s, e), v in self.values.items():

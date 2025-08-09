@@ -23,6 +23,8 @@ class StubBW:
         }
 
     def get_as_array(self, chrom, start, end):
+        if not isinstance(chrom, (bytes, bytearray)):
+            raise TypeError("expected bytes, str found")
         arr = np.empty(end - start)
         arr[:] = np.nan
         for (s, e), v in self.values.items():
