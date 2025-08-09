@@ -37,10 +37,11 @@ import CEAS.corelib as corelib
 #from CEAS.inout import MYSQL
 try:
     from bx.intervals.io import GenomicIntervalReader
-    from bx.bbi.bigwig_file import BigWigFile
 except:
     sys.stderr.write("Need bx-python!")
     sys.exit()
+
+from CEAS.bigwig_utils import open_bigwig
 
 # ------------------------------------
 # constants
@@ -225,7 +226,7 @@ def main():
         fixedStep = False        # variableStep == True: variableStep Wig, False: fixedStep
         
         # begin to deal with the bw file
-        bw=BigWigFile(open(options.wig)) # use bx-python to get the information in bw file
+        bw = open_bigwig(options.wig)
         chroms_lens=get_chroms_lens(options.length_file) # length of chromsomes is unknown in bw file
         
         # read the bw file one chromsome by one chromsome in the selected chromsomes

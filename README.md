@@ -64,6 +64,13 @@ For bigWig input use:
 siteproBW -w signal.bw -b motifs.bed --span 1000 --step 20
 ```
 
+`siteproBW` relies on the [`bx-python`](https://github.com/bxlab/bx-python)
+library for BigWig access. Install it with:
+
+```bash
+pip install bx-python
+```
+
 ### Gene-centered annotation only
 
 Generate annotation without profiling:

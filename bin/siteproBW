@@ -34,7 +34,7 @@ import CEAS.R as R
 import CEAS.inout as inout
 #from numpy import seterr
 
-from CistromeAP.jianlib.BwReader import BwIO
+from CEAS.bigwig_utils import open_bigwig, summarize_bigwig
 
 # ------------------------------------
 # constants
@@ -277,7 +277,7 @@ def main():
     
     for iw in range(len(opts.wig)):
         info('processing wig %s %s', iw, os.path.split(opts.wig[iw])[1])
-        bw = BwIO(opts.wig[iw]) #BigWigFile(open(opts.wig[iw], 'rb'))
+        bw = open_bigwig(opts.wig[iw])
         #avg_siteprofs = []
         ibed = 0
         for ib in range(len(opts.bed)):
@@ -289,7 +289,13 @@ def main():
                 prange = (center-opts.span-opts.pf_res/2, center+opts.span-opts.pf_res/2+opts.pf_res)
                 if prange[0] <= 0 or prange[1] <= 0:
                     continue
-                summarize = bw.summarize(line[0], prange[0], prange[1], 2*opts.span/opts.pf_res+1)
+                summarize = summarize_bigwig(
+                    bw,
+                    line[0],
+                    int(prange[0]),
+                    int(prange[1]),
+                    int(2 * opts.span / opts.pf_res + 1),
+                )
                 if not summarize:
                     continue
                 valid_bedlist.append(line)
