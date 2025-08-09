@@ -1000,7 +1000,7 @@ def write_func_quantize():
     rscript += '\t\t' + 'x[x > lim[1]] <- lim[1]' + '\n'
     rscript += '\t\t' + 'q <- round(n.levels * (x - lim[0])/(lim[1]-lim[0]))' + '\n'
     rscript += '\t\t' + 'return(q)' + '\n'
-    rscript += '\t\}\n'
+    rscript += '\t}\n'
     
     return rscript
 

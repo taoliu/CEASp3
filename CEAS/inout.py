@@ -490,30 +490,34 @@ class GeneTable(object):
         for tb in table:
             for column in columns:
                 if column=='chrom': continue
-                value=tb[schema[column]]
-                ctype=type(tb[schema[column]]).__name__
-                
+                value = tb[schema[column]]
+                ctype = type(value).__name__
+
                 # if blob (array in the case of MySQLdb, a comma separate string in the case of sqlite3), parse them
-                if ctype=='array':
-                    value=parser_commasep_array(value)
-                elif ctype=='str' or ctype=='unicode': 
+                if ctype == 'array':
+                    value = parser_commasep_array(value)
+                elif isinstance(value, str):
                     try:                    # try block for checking if the string (value) is empty
-                        if value[-1]==',':    # this is comma-separated blob
+                        if value[-1] == ',':    # this is comma-separated blob
                             try:
-                                temp=value.rstrip(',').split(',')
-                                value=parser_commasep_str(temp)
+                                temp = value.rstrip(',').split(',')
+                                value = parser_commasep_str(temp)
                             except ValueError:
                                 pass
-                        else: value=str(value)
-                    except IndexError:     
+                        else:
+                            value = str(value)
+                    except IndexError:
                         pass
                 # when no array or list was formed, make. Otherwise, just append the new data to the existing array or list
                 try:
                     self.table[tb[schema['chrom']]][column].append(value)
                 except KeyError:
-                    if ctype=='int' or ctype=='long': self.table[tb[schema['chrom']]][column]=array('l',[value])
-                    elif ctype=='float': self.table[tb[schema['chrom']]][column]=array('d',[value])
-                    else: self.table[tb[schema['chrom']]][column]=[value]
+                    if isinstance(value, int):
+                        self.table[tb[schema['chrom']]][column] = array('l', [value])
+                    elif isinstance(value, float):
+                        self.table[tb[schema['chrom']]][column] = array('d', [value])
+                    else:
+                        self.table[tb[schema['chrom']]][column] = [value]
                 
         #close cursor and connection
         cursor.close()

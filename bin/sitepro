@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # 
 
 """Module Description
@@ -50,7 +50,7 @@ logging.basicConfig(level=20,
 # ------------------------------------
 # Misc functions
 # ------------------------------------
-error   = logging.critical		# function alias
+error   = logging.critical        # function alias
 warn    = logging.warning
 debug   = logging.debug
 info    = logging.info
@@ -402,7 +402,7 @@ def catBEDs(BEDlist):
             cBED[chrom]['name'].extend([str(ID)] * chrom_len)
             cBED[chrom]['score'].extend([0] * chrom_len)
             try:
-            	cBED[chrom]['strand'].extend(BED[chrom]['strand'])
+                cBED[chrom]['strand'].extend(BED[chrom]['strand'])
             except KeyError:
                 cBED[chrom]['strand'].extend([''] * chrom_len)
     
@@ -484,7 +484,7 @@ def main():
                 except KeyError:
                     pass
                 continue
-        	
+            
             l=line.strip().split()
 
             # the beginning
@@ -500,8 +500,8 @@ def main():
                     row = [position, l[-1]]
                     position += step
                 else:
-                   	row = l
-                   	
+                       row = l
+                       
                 # add the new line to the Wig object
                 input.add_line(chrom, row)
                 chrcount += 1
@@ -530,32 +530,32 @@ def main():
                             del avg_sp,spcount
                 
                         else:   # if first chromosome
-                            avg_siteprofs[i]=avg_sp
-                            avg_spcounts[i]=spcount
-                            
+                            avg_siteprofs[i] = avg_sp
+                            avg_spcounts[i] = spcount
+
                             # open a txt file to dump profiles if --dump is set
                             if options.dump:
-                    	        nm = options.label[wigl + i] + '_dump.txt'
+                                nm = options.label[wigl + i] + '_dump.txt'
                                 dfhd = open(nm, 'w')
                                 dfhd.write(dump(chrom, Siteslist[i][chrom], siteprofs))
                                 dfhd.close()
-                    
-                        # de1lete unnucessary variables to maximize usable memory
-                        del siteprofs   
+
+                        # delete unnecessary variables to maximize usable memory
+                        del siteprofs
                  
                 # set chrom to the new chromosome
                 if FIRST: FIRST = False
                 chrom=newchrom
                 info("#%d-%d read and process %s..." %(jobcount, chrcount, chrom))
                 input=inout.Wig()
-                	
+                    
                 # if fixedStep, calculate the position from start and step
                 if fixedStep:
                     row = [position, l[-1]]
                     position += step
                 else:
-                   	row = l
-                   	
+                       row = l
+                       
                 # add the new line to the Wig object
                 input.add_line(chrom, row)
                 chrcount+=1
@@ -565,12 +565,12 @@ def main():
                     row = [position, l[-1]]
                     position += step
                 else:
-                   	row = l
-                   	
+                       row = l
+                       
                 # add the new line to the Wig object
                 input.add_line(chrom, row)
                 
-		# the last chromosome
+        # the last chromosome
         #for Sites, avg_siteprof, avg_spcount in xrange(len(Siteslist)): #itertools.izip(Siteslist, avg_siteprofs, avg_spcounts):
         for i in range(len(Siteslist)): #itertools.izip(Siteslist, avg_siteprofs, avg_spcounts):
             
@@ -595,15 +595,15 @@ def main():
                 else:
                     # average site profiles
                     avg_siteprofs[i]=avg_sp
-                    avg_spcounts[i]=spcount
-            
+                    avg_spcounts[i] = spcount
+
                     # if --dump, dump the profiles along with their corresponding BED regions
                     if options.dump:
-            	        nm = options.label[wigl+i] + '_dump.txt'
+                        nm = options.label[wigl + i] + '_dump.txt'
                         dfhd = open(nm, 'w')
                         dfhd.write(dump(chrom, Siteslist[i][chrom], siteprofs))
                         dfhd.close()
-            
+
                 # delete unnecessary variables
                 del siteprofs
 
@@ -614,8 +614,8 @@ def main():
         # save the site profile of current wig file
         super_avg_siteprofs.extend(avg_siteprofs)
         
-    	jobcount+=1
-    	wigl += 1
+        jobcount+=1
+        wigl += 1
     
     # write the R script
     info('#%d writing R script of profiling...' %jobcount)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Module Description
 
@@ -183,7 +183,7 @@ def main():
     GeneT = inout.GeneTable()
     try:
         GeneT.read(Host = options.Host, User= options.User, Db=options.Db, annotation='GeneTable', \
-    	           columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds'), which=which, where=where)
+                   columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds'), which=which, where=where)
     except Exception as e:
         # if 'name2' does not exist and the user wants to use 'name2', error; otherwise, 
         if re.search(r'column.*name2', str(e)):

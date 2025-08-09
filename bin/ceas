@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Module Description
 
@@ -48,7 +48,7 @@ logging.basicConfig(level=20,
 # ------------------------------------
 # Misc functions
 # ------------------------------------
-error   = logging.critical		# function alias
+error   = logging.critical        # function alias
 warn    = logging.warning
 debug   = logging.debug
 info    = logging.info
@@ -69,8 +69,8 @@ def main():
     info("#%d read the gene table..." %jobcount)
     GeneT = inout.GeneTable()
     try:
-    	GeneT.read(Host = options.Host, User= options.User, Db=options.gdb, annotation='GeneTable', \
-    	           columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds', 'name2'))
+        GeneT.read(Host = options.Host, User= options.User, Db=options.gdb, annotation='GeneTable', \
+                   columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds', 'name2'))
     except Exception as e:
         # if 'name2' does not exist and the user wants to use 'name2', error; otherwise, 
         if re.search(r'column.*name2', str(e)):
@@ -214,7 +214,7 @@ def main():
         swig=inout.Wig()
         ws = sampler.WigSamplerFast()
         FIRST=True
-        fixedStep = False		# variableStep == True: variableStep Wig, False: fixedStep
+        fixedStep = False        # variableStep == True: variableStep Wig, False: fixedStep
         for line in open(options.wig,'r'):
             if not line: continue
             # when meet 'track', continue to the next line
@@ -260,9 +260,9 @@ def main():
                         row = [position, l[-1]]
                         position += step
                     else:
-                   	    row = l
-                   	
-                   	# add the new line to the Wig object
+                           row = l
+                       
+                       # add the new line to the Wig object
                     input.add_line(chrom, row)
                     chrcount+=1
             elif chrom!='' and chrom!=newchrom:    # new chromosome
@@ -445,12 +445,12 @@ def main():
                     
                     # if fixedStep, calculate the position from start and step
                     if fixedStep:
-                	    row = [position, l[-1]]
-                	    position += step
+                        row = [position, l[-1]]
+                        position += step
                     else:
-                	    row = l
-                	    
-                	# add the line to the Wig object
+                        row = l
+                        
+                    # add the line to the Wig object
                     input.add_line(chrom, row)
                     chrcount+=1
             else:    # in the middle of chromosome
@@ -744,8 +744,8 @@ def main():
         info ('#... cong! See %s for the graphical results of CEAS!' %(options.name+'.pdf'))
     except:
         info ('#... cong! Run %s using R for the graphical results of CEAS! CEAS could not run R directly.' %(options.name+'.R'))
-    	
-    	
+        
+        
 # ------------------------------------
 # functions
 # ------------------------------------
@@ -915,36 +915,36 @@ def opt_validate (optparser):
     
     # promoter downstream lengths and bidirectional promoter lengths
     try:
-    	options.sizes= list(map(int, options.sizes.rsplit(',')))
-    	options.bisizes= list(map(int, options.bisizes.rsplit(',')))
+        options.sizes= list(map(int, options.sizes.rsplit(',')))
+        options.bisizes= list(map(int, options.bisizes.rsplit(',')))
     except ValueError:
-    	error('Only integer values are accepted for --sizes or --bisizes and numbers must be comma-separated w/o space')
-    	sys.exit(0)
+        error('Only integer values are accepted for --sizes or --bisizes and numbers must be comma-separated w/o space')
+        sys.exit(0)
     
-    # only three values or one value can be given	
+    # only three values or one value can be given    
     if len(options.sizes) !=3 and len(options.sizes) !=1:
-    	error('Three comma-separated numbers or a single number can be given for --sizes')
-    	sys.exit(0)
+        error('Three comma-separated numbers or a single number can be given for --sizes')
+        sys.exit(0)
     
-    # only two values or one value can be given	
+    # only two values or one value can be given    
     if len(options.bisizes) !=2 and len(options.bisizes) !=1:
-    	error('Two comma-separated numbers or a single number can be given for --bisizes')
-    	sys.exit(0)
+        error('Two comma-separated numbers or a single number can be given for --bisizes')
+        sys.exit(0)
     
     # saturate the values with 1000 for promoter and downstream and 20000 for bidirectional promoter
     options.sizes = list(map(min, [10000]*len(options.sizes), options.sizes))
     options.bisizes = list(map(min, [20000]*len(options.bisizes), options.bisizes))
-    	
+        
     # if a single value is given, split into three equal fractions
     if len(options.sizes) == 1:
-    	n = 3
-    	options.sizes = [options.sizes[0]*i/n for i in range(1, n+1)]
+        n = 3
+        options.sizes = [options.sizes[0]*i/n for i in range(1, n+1)]
     options.sizes.sort()
     options.sizes = tuple(options.sizes)
     
     if len(options.bisizes) == 1:
-    	n = 2
-    	options.bisizes = [options.bisizes[0]*i/n for i in range(1, n+1)]
+        n = 2
+        options.bisizes = [options.bisizes[0]*i/n for i in range(1, n+1)]
     options.bisizes.sort()
     options.bisizes = tuple(options.bisizes)    
         
@@ -1013,7 +1013,7 @@ def opt_validate (optparser):
     options.metaexonsizes = None
     options.metaintronsizes = None
     
-    options.n_peaks = None	# the number of top n peaks to plot in chromosomal view of the peaks: Default None, which means only downsampling will be applied.
+    options.n_peaks = None    # the number of top n peaks to plot in chromosomal view of the peaks: Default None, which means only downsampling will be applied.
         
     #
     # dump
@@ -1334,7 +1334,7 @@ def _interpoloate_gbg(gdb,promoter,bipromoter):
                             interpol.append(corelib.lininterpol([mod[column][i],vals[i]], [mod[column][i+1],vals[i+1]],x))
                         except IndexError: # in case that x is equal to or larger than the upper bound (e.g. >= 10000 in promoter or downstream)
                             interpol.append(corelib.lininterpol([mod[column][i],vals[i]], [mod[column][i],vals[i]],x))
-	
+    
                 GP[chrom][column]=interpol
                 
     return GP

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Module Description
 
@@ -425,7 +425,7 @@ class GeneAnnotator:
         n = 1
         for chrom in chroms:
             
-	    # gene
+            # gene
             txStart = GeneT[chrom]['txStart']
             txEnd = GeneT[chrom]['txEnd']
             strand = GeneT[chrom]['strand']
@@ -438,18 +438,18 @@ class GeneAnnotator:
             except KeyError:
                 name2 = GeneT[chrom]['name']
 
-	    # if this chromosome is not in the ChIP list
-	    if chrom not in chroms_ChIP:
-		for nm, nm2, S, E, ss in zip( name, name2, txStart, txEnd, strand ):
-		    self.map.append_row( [nm, nm2, S, E, ss, chrom, "NA", "NA", "NA", "NA", "NA"] )
-		continue
+            # if this chromosome is not in the ChIP list
+            if chrom not in chroms_ChIP:
+                for nm, nm2, S, E, ss in zip( name, name2, txStart, txEnd, strand ):
+                    self.map.append_row( [nm, nm2, S, E, ss, chrom, "NA", "NA", "NA", "NA", "NA"] )
+                continue
 
             # get the ChIP start and end then the center of the regions
             ChIP_start = ChIP[chrom]['start']
             ChIP_end = ChIP[chrom]['end']
             ChIP_center = list(map( lambda x, y: (x+y)/2, ChIP_start, ChIP_end )) 
-	    
-	    # get the how many binding sites.
+            
+            # get the how many binding sites.
             n_ChIP = len( ChIP_start )
             
             # name
@@ -460,10 +460,10 @@ class GeneAnnotator:
                 ChIP_name = [str(x) for x in ChIP_name]
                 n = n+n_ChIP+1
 
-	    # sort by the order of ChIP_center.
-	    #ChIP_start = map( lambda x: ChIP_start[x], sort_ix_center )
-	    #ChIP_end = map( lambda x: ChIP_end[x], sort_ix_center )
-	    #ChIP_name = map( lambda x: ChIP_name[x], sort_ix_center )
+            # sort by the order of ChIP_center.
+            #ChIP_start = map( lambda x: ChIP_start[x], sort_ix_center )
+            #ChIP_end = map( lambda x: ChIP_end[x], sort_ix_center )
+            #ChIP_name = map( lambda x: ChIP_name[x], sort_ix_center )
 
             # get the TSS considering the strand
             genes = self.extract_txStarts( txStart, txEnd, strand, name, name2, sort=False )
@@ -471,23 +471,23 @@ class GeneAnnotator:
             # get the distance matrix
             matrix = self.make_dist_matrix( genes, ChIP_center )
             
-	    # get the shortest distance from each peak to genes. Warning shortest has signs
+            # get the shortest distance from each peak to genes. Warning shortest has signs
             shortest, ix_shortest = self.return_shortest_dist( matrix, genes, lo=lo, up=up )
 
-	    # determin up or down stream of the peaks
-	    updown = self.determine_updown( shortest )
+            # determin up or down stream of the peaks
+            updown = self.determine_updown( shortest )
 
-	    # get the gene information
-	    Cstart, Cend, Cname = self.get_ChIP_info( ix_shortest, ChIP_start, ChIP_end, ChIP_name )
+            # get the gene information
+            Cstart, Cend, Cname = self.get_ChIP_info( ix_shortest, ChIP_start, ChIP_end, ChIP_name )
 
-	    # update the table: add rows
-	    for nm, nm2, S, E, ss, ChIP_s, ChIP_e, ChIP_n, shrt, ud in zip(name, name2, txStart, txEnd, strand, Cstart, Cend, Cname, shortest, updown ):
+            # update the table: add rows
+            for nm, nm2, S, E, ss, ChIP_s, ChIP_e, ChIP_n, shrt, ud in zip(name, name2, txStart, txEnd, strand, Cstart, Cend, Cname, shortest, updown ):
                 if shrt == None:
                     self.map.append_row( [nm, nm2, S, E, ss, chrom, ChIP_s, ChIP_e, ChIP_n, "NA", ud] )
                 else:
                     self.map.append_row([nm, nm2, S, E, ss, chrom, ChIP_s, ChIP_e, ChIP_n, abs(shrt), ud])
-		#self.map.append_row([chrom, ChIP_s, ChIP_e, ChIP_n, nm, S, E, ss, shrt, ud])
-	    
+                #self.map.append_row([chrom, ChIP_s, ChIP_e, ChIP_n, nm, S, E, ss, shrt, ud])
+            
     
     def extract_txStarts(self, txS, txE, strand, name, name2, sort=True):
         """Extract txStarts given 'txStart', 'txEnd' and 'strand' of a gene annotation table.
@@ -589,7 +589,7 @@ class GeneAnnotator:
 
         return shortest, ix_shortest
 
-	
+        
     def get_ChIP_info( self, ix, ChIP_start, ChIP_end, ChIP_name ):
         """Return the information of the genes that are closest to the binding sites.
            
@@ -597,11 +597,11 @@ class GeneAnnotator:
            Cstart, Cend, Cname = self.get_ChIP_info( ix_shortest, ChIP_start, ChIP_end, ChIP_name )
 
         """
-	Cname = []
-	Cstart = []
-	Cend = []
-	
-	for i in ix:
+        Cname = []
+        Cstart = []
+        Cend = []
+        
+        for i in ix:
             if i == None:
                 Cname.append( "NA" )
                 Cstart.append( "NA" )
@@ -610,8 +610,8 @@ class GeneAnnotator:
                 Cname.append( ChIP_name[i] )
                 Cstart.append( ChIP_start[i] )
                 Cend.append( ChIP_end[i] )
-	
-	return Cstart, Cend, Cname
+        
+        return Cstart, Cend, Cname
 
 
     def determine_updown( self, shortest ):
@@ -650,12 +650,12 @@ class GeneAnnotator:
                                  "# txStart: the txStart of the nearest gene", \
                                  "# txEnd: the txEnd of the nearest gene",\
                                  "# strand: the stand where the gene is", \
-		                 "# chrom: chromosome", \
+                                 "# chrom: chromosome", \
                                  "# start: starting edge of each binding site",\
                                  "# end: ending edge of each bindign site", \
                                  "# name: peak name", \
                                  "# dist: shortest distance from a binding site to the nearest gene", \
-		                 "# dir: up: the nearest gene is upstream of the binding site, down: the nearest gene is downstream of the binding site."))
+                                 "# dir: up: the nearest gene is upstream of the binding site, down: the nearest gene is downstream of the binding site."))
                
             comment += "\n"               
         else:
@@ -679,7 +679,7 @@ def main():
     GeneT = inout.GeneTable()
     try:
         GeneT.read(Host = options.Host, User= options.User, Db=options.Db, annotation='GeneTable', \
-    	           columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds', 'name2'), which="", where=())
+                   columns=('name','chrom','strand','txStart','txEnd','cdsStart','cdsEnd','exonCount','exonStarts', 'exonEnds', 'name2'), which="", where=())
     except Exception as e:
         # if 'name2' does not exist and the user wants to use 'name2', error; otherwise, 
         if re.search(r'column.*name2', str(e)):
