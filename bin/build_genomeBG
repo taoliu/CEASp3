@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Module Description
 
@@ -43,7 +43,7 @@ logging.basicConfig(level=20,
 # ------------------------------------
 # Misc functions
 # ------------------------------------
-error   = logging.critical		# function alias
+error   = logging.critical        # function alias
 warn    = logging.warning
 debug   = logging.debug
 info    = logging.info
