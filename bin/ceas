@@ -3,6 +3,11 @@
 Default format is bigwig.
 """
 import sys
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+
 
 def main():
     fmt = 'bigwig'
@@ -17,9 +22,9 @@ def main():
                 argv[idx:idx + 1] = []
             break
     if fmt == 'wig':
-        from CEAS import ceas_wig as impl
+        import ceas_wig as impl
     else:
-        from CEAS import ceas_bigwig as impl
+        import ceas_bigwig as impl
     impl.main()
 
 

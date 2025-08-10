@@ -36,6 +36,3 @@ script-files = [
     "bin/build_genomeBG",
     "bin/ChIPAssoc",
 ]
-
-[tool.setuptools.package-dir]
-CEAS = "CEAS"
