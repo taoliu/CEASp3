@@ -1,0 +1,97 @@
+import argparse
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        description="CEAS (Cis-regulatory Element Annotation System)",
+        add_help=False,
+    )
+    parser.add_argument("-h", "--help", action="help", help="Show this help message and exit.")
+    parser.add_argument(
+        "-f", "--format", dest="format", choices=["bigwig", "wig"], default="bigwig",
+        help="Input file format (bigwig or wig).",
+    )
+    parser.add_argument("-b", "--bed", dest="bed", help="BED file of ChIP regions.")
+    parser.add_argument(
+        "-w", "--wig", "--bigwig", "--bw", dest="wig",
+        help=(
+            "WIG or BIGWIG file for either wig profiling or genome background annotation. "
+            "WARNING: --bg flag must be set for genome background re-annotation."
+        ),
+    )
+    parser.add_argument("-e", "--ebed", dest="ebed", help="BED file of extra regions of interest (eg, non-coding regions)")
+    parser.add_argument(
+        "-g", "--gt", dest="gdb", help="Gene annotation table (eg, a refGene table in sqlite3 db format)."
+    )
+    parser.add_argument(
+        "--name", dest="name",
+        help=(
+            "Experiment name. This will be used to name the output files. If an experiment name is not given, "
+            "the stem of the input BED file name will be used instead."
+        ),
+    )
+    parser.add_argument(
+        "--sizes", dest="sizes", default="1000,2000,3000",
+        help=(
+            "Promoter (also downstream) sizes for ChIP region annotation. Comma-separated three values or a single value can be given."
+            " If a single value is given, it will be segmented into three equal fractions."
+        ),
+    )
+    parser.add_argument(
+        "--bisizes", dest="bisizes", default="2500,5000",
+        help=(
+            "Bidirectional-promoter sizes for ChIP region annotation. Comma-separated two values or a single value can be given."
+            " If a single value is given, it will be segmented into two equal fractions."
+        ),
+    )
+    parser.add_argument(
+        "--bg", action="store_true", dest="bg", default=False,
+        help=(
+            "Run genome BG annotation again. WARNING: This flag is effective only if a WIG/BIGWIG file is given through -w."
+        ),
+    )
+    parser.add_argument(
+        "--span", dest="span", type=int, default=3000,
+        help=(
+            "Span from TSS and TTS in the gene-centered annotation. ChIP regions within this range from TSS and TTS are considered when calculating the coverage rates in promoter and downstream."
+        ),
+    )
+    parser.add_argument(
+        "--pf-res", dest="pf_res", type=int, default=50,
+        help="Wig profiling resolution",
+    )
+    parser.add_argument(
+        "--rel-dist", dest="rel_dist", type=int, default=3000,
+        help="Relative distance to TSS/TTS in wig profiling",
+    )
+    parser.add_argument(
+        "--gn-groups", dest="gn_groups",
+        help=(
+            "Gene-groups of particular interest in wig profiling. Each gene group file must have gene names in the 1st column."
+            " The file names are separated by commas with no space."
+        ),
+    )
+    parser.add_argument(
+        "--gn-group-names", dest="gn_names",
+        help=(
+            "The names of the gene groups in --gn-groups separated by commas. These appear in the legends of the wig profiling plots."
+        ),
+    )
+    parser.add_argument(
+        "--gname2", action="store_true", dest="name2", default=False,
+        help=(
+            "Whether or not use the 'name2' column of the gene annotation table when reading gene IDs in --gn-groups."
+        ),
+    )
+    parser.add_argument(
+        "--dump", action="store_true", dest="dump", default=False,
+        help=(
+            "Whether to save the raw profiles of near TSS, TTS, and gene body."
+            " The file names have a suffix of 'TSS', 'TTS', and 'gene' after the name."
+        ),
+    )
+    parser.add_argument(
+        "-l", "--length", dest="length_file",
+        help="file contains lenth information of every chroms",
+    )
+    return parser

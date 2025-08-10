@@ -35,15 +35,7 @@ import itertools
 import CEAS.inout as inout
 import CEAS.corelib as corelib
 import CEAS.R as R
-import importlib.util
-import importlib.machinery
-from pathlib import Path
-
-_sitepro_path = Path(__file__).resolve().parents[1] / "bin" / "sitepro"
-_loader = importlib.machinery.SourceFileLoader("sitepro_cli", str(_sitepro_path))
-_spec = importlib.util.spec_from_loader(_loader.name, _loader)
-sitepro_parser = importlib.util.module_from_spec(_spec)
-_loader.exec_module(sitepro_parser)
+from CEAS import sitepro as sitepro_parser
 
 # ------------------------------------
 # constants
