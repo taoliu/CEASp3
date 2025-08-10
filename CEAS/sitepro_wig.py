@@ -28,7 +28,6 @@ import string
 import logging
 import re
 import itertools
-from optparse import OptionParser
 
 # -----------------------------------
 # my modules
@@ -36,6 +35,7 @@ from optparse import OptionParser
 import CEAS.inout as inout
 import CEAS.corelib as corelib
 import CEAS.R as R
+from CEAS import sitepro as sitepro_parser
 
 # ------------------------------------
 # constants
@@ -203,51 +203,18 @@ class WigProfilerwBed:
         return self.capture_regions(wig, bed)
    
    
-# ------------------------------------
-# functions
-# ------------------------------------
-def prepare_optparser ():
-    """Prepare optparser object. New options will be added in this
-    function first.
-    
-    """
-    usage = "usage: %prog <-w wig -b bed> [options]"
-    description = "sitepro -- Average profile around given genomic sites"
-    
-    # option processor
-    optparser = OptionParser(version="%prog 0.6.6 (package version 1.0.2)",description=description,usage=usage,add_help_option=False)
-    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
-    optparser.add_option("-w","--wig",dest="wig",type="string", action="append",\
-                         help="input WIG file. WARNING: both fixedStep and variableStep WIG formats are accepted. Multiple WIG files can be given via -w (--wig) individually (eg -w WIG1.wig, -w WIG2.wig). WARNING! multiple wig and bed files are not allowed.")
-    optparser.add_option("-b","--bed",dest="bed",type="string", action="append",\
-                         help="BED file of regions of interest. (eg, binding sites or motif locations) Multiple BED files can be given via -b (--bed) individually (eg -b BED1.bed -b BED2.bed). WARNING! multiple wig and bed files are not allowed.")
-    optparser.add_option("--span",dest="span",type="int",\
-                         help="Span from the center of each BED region in both directions(+/-) (eg, [c - span, c + span], where c is the center of a region), default:1000 bp", default=1000)   
-    optparser.add_option("--pf-res", dest="pf_res", type="int",\
-                          help="Profiling resolution, default: 50 bp", default=50) 
-    optparser.add_option("--dir",action="store_true",dest="dir",\
-                         help="If set, the direction (+/-) is considered in profiling. If no strand info given in the BED, this option is ignored.",default=False)
-    optparser.add_option("--dump",action="store_true",dest="dump",\
-                         help="If set, profiles are dumped as a TXT file",default=False)
-    optparser.add_option("--name",dest="name",type="string",
-                         help="Name of this run. If not given, the body of the bed file name will be used,")
-    optparser.add_option("-l","--label",dest="label",type="string", action="append",\
-                         help="Labels of the wig files. If given, they are used as the legends of the plot and in naming the TXT files of profile dumps; otherwise, the WIG file names will be used as the labels. Multiple labels can be given via -l (--label) individually (eg, -l LABEL1 -l LABEL2). WARNING! The number and order of the labels must be the same as the WIG files.", default=None)
-    #optparser.add_option("--log",action="store_true",dest="log",\
-    #                     help="If set, a log file is recorded in the current working directory.",default=False) 
-    return optparser
 
 
-def opt_validate (optparser):
-    """Validate options from a OptParser object.
+def opt_validate (parser):
+    """Validate options from an ArgumentParser object.
 
     Ret: Validated options object.
     """
-    (options,args) = optparser.parse_args()
+    options = parser.parse_args()
     
     # input BED file and GDB must be given 
     if not (options.wig and options.bed):
-        optparser.print_help()
+        parser.print_help()
         sys.exit(1)
     else:
         if len(options.wig) > 1 and len(options.bed) > 1:
@@ -414,7 +381,7 @@ def catBEDs(BEDlist):
 def main():
     
     # read the options and validate them
-    options=opt_validate(prepare_optparser())
+    options = opt_validate(sitepro_parser.get_parser())
     
     info ("\n" + options.argtxt)
     
