@@ -16,9 +16,6 @@ def main():
             idx = argv.index(flag)
             if idx + 1 < len(argv):
                 fmt = argv[idx + 1].lower()
-                del argv[idx:idx + 2]
-            else:
-                argv[idx:idx + 1] = []
             break
     if fmt == 'wig':
         from CEAS import sitepro_wig as impl

@@ -27,7 +27,6 @@ import string
 import math
 import logging
 import re
-from optparse import OptionParser
 
 import CEAS.corelib as corelib
 import CEAS.R as R
@@ -35,6 +34,7 @@ import CEAS.inout as inout
 #from numpy import seterr
 
 from CEAS.bigwig_utils import open_bigwig, summarize_bigwig
+from CEAS import sitepro as sitepro_parser
 
 # ------------------------------------
 # constants
@@ -52,45 +52,17 @@ warn    = logging.warning
 debug   = logging.debug
 info    = logging.info
 
-# ------------------------------------
-# functions
-# ------------------------------------
-def prepare_optparser ():
-    usage = "usage: %prog <-w bigwig -b bed> [options]"
-    description = "sitepro -- Average profile around given genomic sites"
-    
-    optparser = OptionParser(version="%prog 0.6.7 (package version 1.0.2)",description=description,usage=usage,add_help_option=False)
-    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
-    optparser.add_option("-w","--bw",dest="wig",type="string", action="append",\
-                         help="input bigWIG file. Multiple bigWIG files can be given via -w (--bw) individually (eg -w WIG1.bw, -w WIG2.bw). WARNING! multiple bigwig and bed files are not allowed.")
-    optparser.add_option("-b","--bed",dest="bed",type="string", action="append",\
-                         help="BED file of regions of interest. (eg, binding sites or motif locations) Multiple BED files can be given via -b (--bed) individually (eg -b BED1.bed -b BED2.bed). WARNING! multiple wig and bed files are not allowed.")
-    optparser.add_option("--span",dest="span",type="int",\
-                         help="Span from the center of each BED region in both directions(+/-) (eg, [c - span, c + span], where c is the center of a region), default:1000 bp", default=1000)   
-    optparser.add_option("--pf-res", dest="pf_res", type="int",\
-                          help="Profiling resolution, default: 50 bp", default=50) 
-    optparser.add_option("--dir",action="store_true",dest="dir",\
-                         help="If set, the direction (+/-) is considered in profiling. If no strand info given in the BED, this option is ignored.",default=False)
-    optparser.add_option("--dump",action="store_true",dest="dump",\
-                         help="If set, profiles are dumped as a TXT file",default=False)
-    optparser.add_option("--confid",action="store_true",dest="confidence",\
-                         help="If set, it will draw 95% confidence interval for each step.",default=False)
-    optparser.add_option("--name",dest="name",type="string",
-                         help="Name of this run. If not given, the body of the bed file name will be used,")
-    optparser.add_option("-l","--label",dest="label",type="string", action="append",\
-                         help="Labels of the wig files. If given, they are used as the legends of the plot and in naming the TXT files of profile dumps; otherwise, the bigWIG file names will be used as the labels. Multiple labels can be given via -l (--label) individually (eg, -l LABEL1 -l LABEL2). WARNING! The number and order of the labels must be the same as the bigWIG files.", default=None)
-    return optparser
 
-def opt_validate (optparser):
-    """Validate options from a OptParser object.
+def opt_validate (parser):
+    """Validate options from an ArgumentParser object.
 
     Ret: Validated options object.
     """
-    (options,args) = optparser.parse_args()
+    options = parser.parse_args()
     
     # input BED file and GDB must be given 
     if not (options.wig and options.bed):
-        optparser.print_help()
+        parser.print_help()
         sys.exit(1)
     else:
         if len(options.wig) > 1 and len(options.bed) > 1:
@@ -267,8 +239,9 @@ def CalcConfidInterval(lx): #threadhold: 0.95
 # Main function
 # ------------------------------------
 def main():
-    opts=opt_validate(prepare_optparser())
-    info ("\n" + opts.argtxt)
+    parser = sitepro_parser.get_parser()
+    opts = opt_validate(parser)
+    info("\n" + opts.argtxt)
 
     sitebreaks = list(range(-opts.span, opts.span+opts.pf_res , opts.pf_res))
     
