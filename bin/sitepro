@@ -28,7 +28,7 @@ import string
 import logging
 import re
 import itertools
-from optparse import OptionParser
+import argparse
 
 # -----------------------------------
 # my modules
@@ -207,43 +207,43 @@ class WigProfilerwBed:
 # functions
 # ------------------------------------
 def prepare_optparser ():
-    """Prepare optparser object. New options will be added in this
+    """Prepare argument parser object. New options will be added in this
     function first.
-    
+
     """
-    usage = "usage: %prog <-w wig -b bed> [options]"
+    usage = "usage: %(prog)s <-w wig -b bed> [options]"
     description = "sitepro -- Average profile around given genomic sites"
-    
-    # option processor
-    optparser = OptionParser(version="%prog 0.6.6 (package version 1.0.2)",description=description,usage=usage,add_help_option=False)
-    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
-    optparser.add_option("-w","--wig",dest="wig",type="string", action="append",\
-                         help="input WIG file. WARNING: both fixedStep and variableStep WIG formats are accepted. Multiple WIG files can be given via -w (--wig) individually (eg -w WIG1.wig, -w WIG2.wig). WARNING! multiple wig and bed files are not allowed.")
-    optparser.add_option("-b","--bed",dest="bed",type="string", action="append",\
-                         help="BED file of regions of interest. (eg, binding sites or motif locations) Multiple BED files can be given via -b (--bed) individually (eg -b BED1.bed -b BED2.bed). WARNING! multiple wig and bed files are not allowed.")
-    optparser.add_option("--span",dest="span",type="int",\
-                         help="Span from the center of each BED region in both directions(+/-) (eg, [c - span, c + span], where c is the center of a region), default:1000 bp", default=1000)   
-    optparser.add_option("--pf-res", dest="pf_res", type="int",\
-                          help="Profiling resolution, default: 50 bp", default=50) 
-    optparser.add_option("--dir",action="store_true",dest="dir",\
-                         help="If set, the direction (+/-) is considered in profiling. If no strand info given in the BED, this option is ignored.",default=False)
-    optparser.add_option("--dump",action="store_true",dest="dump",\
-                         help="If set, profiles are dumped as a TXT file",default=False)
-    optparser.add_option("--name",dest="name",type="string",
-                         help="Name of this run. If not given, the body of the bed file name will be used,")
-    optparser.add_option("-l","--label",dest="label",type="string", action="append",\
-                         help="Labels of the wig files. If given, they are used as the legends of the plot and in naming the TXT files of profile dumps; otherwise, the WIG file names will be used as the labels. Multiple labels can be given via -l (--label) individually (eg, -l LABEL1 -l LABEL2). WARNING! The number and order of the labels must be the same as the WIG files.", default=None)
-    #optparser.add_option("--log",action="store_true",dest="log",\
-    #                     help="If set, a log file is recorded in the current working directory.",default=False) 
-    return optparser
+
+    parser = argparse.ArgumentParser(description=description, usage=usage, add_help=False)
+    parser.add_argument('-v','--version', action='version', version='%(prog)s 0.6.6 (package version 1.0.2)')
+    parser.add_argument('-h','--help',action='help',help='Show this help message and exit.')
+    parser.add_argument('-w','--wig',dest='wig',type=str, action='append',
+                        help='input WIG file. WARNING: both fixedStep and variableStep WIG formats are accepted. Multiple WIG files can be given via -w (--wig) individually (eg -w WIG1.wig, -w WIG2.wig). WARNING! multiple wig and bed files are not allowed.')
+    parser.add_argument('-b','--bed',dest='bed',type=str, action='append',
+                        help='BED file of regions of interest. (eg, binding sites or motif locations) Multiple BED files can be given via -b (--bed) individually (eg -b BED1.bed -b BED2.bed). WARNING! multiple wig and bed files are not allowed.')
+    parser.add_argument('--span',dest='span',type=int,
+                        help='Span from the center of each BED region in both directions(+/-) (eg, [c - span, c + span], wherec is the center of a region), default:1000 bp', default=1000)
+    parser.add_argument('--pf-res', dest='pf_res', type=int,
+                        help='Profiling resolution, default: 50 bp', default=50)
+    parser.add_argument('--dir',action='store_true',dest='dir',
+                        help='If set, the direction (+/-) is considered in profiling. If no strand info given in the BED, thisoption is ignored.',default=False)
+    parser.add_argument('--dump',action='store_true',dest='dump',
+                        help='If set, profiles are dumped as a TXT file',default=False)
+    parser.add_argument('--name',dest='name',type=str,
+                        help='Name of this run. If not given, the body of the bed file name will be used,')
+    parser.add_argument('-l','--label',dest='label',type=str, action='append',
+                        help='Labels of the wig files. If given, they are used as the legends of the plot and in naming the TXT files of profile dumps; otherwise, the WIG file names will be used as the labels. Multiple labels can be given via -l (--label) individually (eg, -l LABEL1 -l LABEL2). WARNING! The number and order of the labels must be the same as the WIG files.', default=None)
+    #parser.add_argument('--log',action='store_true',dest='log',
+    #                    help='If set, a log file is recorded in the current working directory.',default=False)
+    return parser
 
 
 def opt_validate (optparser):
-    """Validate options from a OptParser object.
+    """Validate options from an ArgumentParser object.
 
     Ret: Validated options object.
     """
-    (options,args) = optparser.parse_args()
+    options = optparser.parse_args()
     
     # input BED file and GDB must be given 
     if not (options.wig and options.bed):

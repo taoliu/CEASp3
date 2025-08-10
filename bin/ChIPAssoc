@@ -28,7 +28,7 @@ import logging
 import operator
 import itertools
 import bisect
-from optparse import OptionParser
+import argparse
 
 # import my CEAS modules.
 import CEAS.inout as inout
@@ -49,37 +49,38 @@ info    = logging.info
 
 # functions
 def prepare_optparser ():
-    """Prepare optparser object. New options will be added in this
+    """Prepare argument parser object. New options will be added in this
     function first.
-    
+
     """
-    
-    usage = "usage: %prog <-g gdb -b bed -g geneset> [options]"
+
+    usage = "usage: %(prog)s <-g gdb -b bed -g geneset> [options]"
     description = "ChIPAssoc -- Gene Set Association Analysis. Note that if the number of genomic coordinates is below 1000 or the number of a gene set is below 500, the p value of ChIPAssoc may not represent biological implications well enough."
-    
-    optparser = OptionParser(version="%prog 0.7",description=description,usage=usage,add_help_option=False)
-    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
-    optparser.add_option("-b","--bed",dest="bed",type="string",\
-                         help="BED file of genomic coordinates (e.g. ChIP-Seq peaks). The center of each peak will be used to compute the distance from a gene.")
-    optparser.add_option("-d","--db",dest="gdb",type="string",\
-                         help="Gene annotation table. This can be a sqlite3 local db file, BED file or genome version of UCSC. The BED file must have an extension of '.bed'")
-    optparser.add_option("-g", "--gset", dest="gset", action="append", type="string", help="Gene set to see the association with the genomic coordinates given through -b. Multiple gene sets can be given by repeatedly using this option (e.g. -g geneset1.txt -g geneset2.txt -g geneset3.txt). Genes must be given in a TXT file each line of which has a refseq accession ID or an official gene symbol (i.e. a single-column TXT file).")
-    optparser.add_option("-n", "--min", dest="min", type="float", help="The lower limit of the distance to consider in association analysis (in kb). Note that the lower and upper limits must be reasonably apart to obtain a meaningful result. By default 0kb.", default=0)
-    optparser.add_option("-x", "--max", dest="max", type="float", help="The upper limit of the distance to consider in association analysis (in kb). Note that the lower and upper limits must be reasonably apart to obtain a meaningful result. By default 200kb.", default=200)
-    optparser.add_option("--name",dest="name", help="Experiment name. This will be used to name the output file. If an experiment name is not given, input BED file name will be used instead.")
-    optparser.add_option("-l", "--lab", dest="label", action="append", type="string", help="Label for each gene set. Likewise, multiple gene set labels can be given by repeatedly using this option (e.g. -l label1 -l label2 -l label3). If labels are not given, 'gene set' will be used by default.", default=None)
-    optparser.add_option("-r", "--rbg", dest="rbg", type="string", help="Background gene set. If a set of genes is given using this option, the gene set will be used as background or null set when running KS test. Otherwise, all refseq genes will be used as background. Background genes must be given in a TXT file each line of which has a refseq accession ID or an offical gene symbol  (i.e. a single-column TXT file).", default=None)
-    optparser.add_option("--gname2",dest="name2",action="store_true", \
-                         help="If this switch is on, gene or transcript IDs in files given through -g will be considered as official gene symbols.", default=False)                           
-    return optparser
+
+    parser = argparse.ArgumentParser(description=description, usage=usage, add_help=False)
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.7")
+    parser.add_argument("-h","--help",action="help",help="Show this help message and exit.")
+    parser.add_argument("-b","--bed",dest="bed",type=str,
+                        help="BED file of genomic coordinates (e.g. ChIP-Seq peaks). The center of each peak will be used to compute the distance from a gene.")
+    parser.add_argument("-d","--db",dest="gdb",type=str,
+                        help="Gene annotation table. This can be a sqlite3 local db file, BED file or genome version of UCSC. The BED file must have an extension of '.bed'")
+    parser.add_argument("-g", "--gset", dest="gset", action="append", type=str, help="Gene set to see the association with the genomic coordinates given through -b. Multiple gene sets can be given by repeatedly using this option (e.g. -g geneset1.txt -g geneset2.txt -g geneset3.txt). Genes must be given in a TXT file each line of which has a refseq accession ID or an official gene symbol (i.e. a single-column TXT file).")
+    parser.add_argument("-n", "--min", dest="min", type=float, help="The lower limit of the distance to consider in association analysis (in kb). Note that the lower and upper limits must be reasonably apart to obtain a meaningful result. By default 0kb.", default=0)
+    parser.add_argument("-x", "--max", dest="max", type=float, help="The upper limit of the distance to consider in association analysis (in kb). Note that the lower and upper limits must be reasonably apart to obtain a meaningful result. By default 200kb.", default=200)
+    parser.add_argument("--name",dest="name", help="Experiment name. This will be used to name the output file. If an experiment name is not given, input BED file name will be used instead.")
+    parser.add_argument("-l", "--lab", dest="label", action="append", type=str, help="Label for each gene set. Likewise, multiple gene set labels can be given by repeatedly using this option (e.g. -l label1 -l label2 -l label3). If labels are not given, 'gene set' will be used by default.", default=None)
+    parser.add_argument("-r", "--rbg", dest="rbg", type=str, help="Background gene set. If a set of genes is given using this option, the gene set will be used as background or null set when running KS test. Otherwise, all refseq genes will be used as background. Background genes must be given in a TXT file each line of which has a refseq accession ID or an offical gene symbol  (i.e. a single-column TXT file).", default=None)
+    parser.add_argument("--gname2",dest="name2",action="store_true",
+                        help="If this switch is on, gene or transcript IDs in files given through -g will be considered as official gene symbols.", default=False)
+    return parser
 
 
 def opt_validate (optparser):
-    """Validate options from a OptParser object.
+    """Validate options from an ArgumentParser object.
 
     Ret: Validated options object.
     """
-    (options,args) = optparser.parse_args()
+    options = optparser.parse_args()
     
     # if gdb not given, print help, either BED or WIG must be given 
     if not options.gdb or not options.bed or not options.gset:

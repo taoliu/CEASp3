@@ -21,7 +21,7 @@ import os
 import sys
 import re
 import logging
-from optparse import OptionParser
+import argparse
 import CEAS.inout as inout
 import sqlite3
 from CEAS.inout import MYSQL
@@ -244,37 +244,38 @@ def prepare_optparser ():
     
     """
     
-    usage = "usage: %prog <-g gt -w wig> [options]"
+    usage = "usage: %(prog)s <-g gt -w wig> [options]"
     description = "build_genomeBG, do genome bg annotation and save it for CEAS"
-    
-    optparser = OptionParser(version="%prog 0.1.6 (package version 1.0.2)",description=description,usage=usage,add_help_option=False)
-    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
-    optparser.add_option("-d","--db",dest="db",type="string",
-                         help="Genome of UCSC (eg hg18). If -d (--db) is not given, this script searches for a local sqlite3 referenced by -g (--gt). WARNING: MySQLdb must be installed to use the tables of UCSC.", default=None)
-    optparser.add_option("-g","--gt",dest="gt",type="string",
-                         help="Name of the gene annotation table (or local sqlite3 file) (eg refGene or knownGene). If -d (--db) is given, build_genomeBG will connect to UCSC and download the specified gene table. Otherwise, build_genomeBG search for a local sqlite3 file with the name.")
-    optparser.add_option("-w","--wig",dest="wig",type="string",
-                         help="WIG file needed to obtain genome locations in BG annotation. VariableStep and fixedWig files are accepted.")         
-    optparser.add_option("-o", "--ot", dest="ot",type="string",\
-                         help="Output sqlite3 db file name. The gene annotation table read from the local sqlite3 file or UCSC DB will be saved in a table named as 'GeneTable' and the computed genome bg annotation will be saved in two tables named as 'GenomeBGS' and 'GenomeBGP. If this option is not given, this script generates a sqlite3 file with the same name as given through -g (--gt). WARNING! When an existing local sqlite3 file is opened and saved as the same name, the tables in the file will be overwritten.", default=None)
-    optparser.add_option("--promoter",dest="promoter",type="int",
-                         help="Maximum promoter size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 10000bp", default=10000)    
-    optparser.add_option("--bipromoter",dest="bipromoter",type="int",
-                         help="Maximum Bidirectional promoter size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 20000bp", default=20000)  
-    optparser.add_option("--downstream",dest="downstream",type="int",
-                         help="Maximum immediate downstream size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 10000bp", default=10000)     
-    optparser.add_option("--binsize",dest="binsize",type="int",\
-                          help="Binsize with which to bin promoter, bidirectional promoter, and immediate downstream sizes. In each bin, the percentage of genome will be calculated. DEFAULT=1000bp", default=1000)
-    
-    return optparser
+
+    parser = argparse.ArgumentParser(description=description, usage=usage, add_help=False)
+    parser.add_argument("-v","--version", action="version", version="%(prog)s 0.1.6 (package version 1.0.2)")
+    parser.add_argument("-h","--help",action="help",help="Show this help message and exit.")
+    parser.add_argument("-d","--db",dest="db",type=str,
+                        help="Genome of UCSC (eg hg18). If -d (--db) is not given, this script searches for a local sqlite3 referenced by -g (--gt). WARNING: MySQLdb must be installed to use the tables of UCSC.", default=None)
+    parser.add_argument("-g","--gt",dest="gt",type=str,
+                        help="Name of the gene annotation table (or local sqlite3 file) (eg refGene or knownGene). If -d (--db) is given, build_genomeBG will connect to UCSC and download the specified gene table. Otherwise, build_genomeBG search for a local sqlite3 file with the name.")
+    parser.add_argument("-w","--wig",dest="wig",type=str,
+                        help="WIG file needed to obtain genome locations in BG annotation. VariableStep and fixedWig files are accepted.")
+    parser.add_argument("-o", "--ot", dest="ot",type=str,
+                        help="Output sqlite3 db file name. The gene annotation table read from the local sqlite3 file or UCSC DB will be saved in a table named as 'GeneTable' and the computed genome bg annotation will be saved in two tables named as 'GenomeBGS' and 'GenomeBGP. If this option is not given, this script generates a sqlite3 file with the same name as given through -g (--gt). WARNING! When an existing local sqlite3 file is opened and saved as the same name, the tables in the file will be overwritten.", default=None)
+    parser.add_argument("--promoter",dest="promoter",type=int,
+                        help="Maximum promoter size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 10000bp", default=10000)
+    parser.add_argument("--bipromoter",dest="bipromoter",type=int,
+                        help="Maximum Bidirectional promoter size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 20000bp", default=20000)
+    parser.add_argument("--downstream",dest="downstream",type=int,
+                        help="Maximum immediate downstream size to consider for genome bg annotation. This must be >= 1000bp. Any value less than 1000bp will be set to 1000bp. DEFAULT: 10000bp", default=10000)
+    parser.add_argument("--binsize",dest="binsize",type=int,
+                         help="Binsize with which to bin promoter, bidirectional promoter, and immediate downstream sizes. In each bin, the percentage of genome will be calculated. DEFAULT=1000bp", default=1000)
+
+    return parser
 
 
 def opt_validate (optparser):
-    """Validate options from a OptParser object.
+    """Validate options from an ArgumentParser object.
 
     Ret: Validated options object.
     """
-    (options,args) = optparser.parse_args()
+    options = optparser.parse_args()
     
     # input BED file and GDB must be given 
     if not (options.gt or options.wig):
