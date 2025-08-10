@@ -1,0 +1,44 @@
+# This workflows will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: CEASp3 Upload to PYPI
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://pypi.org/p/ceasp3
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+    # retrieve your distributions here
+      - name: Check out CEASp3 with submodules 
+        uses: actions/checkout@v4 
+        with: 
+          submodules: 'true'
+
+      - name: Set up Python 
+        uses: actions/setup-python@v5 
+        with: 
+          python-version: '3.12'
+
+      # Here we build sdist in this job. If we plan to build wheels
+      # and upload to PyPI, we need another job to build wheels, and
+      # collect artifacts in this step... 
+      - name: Build sdist
+        run: |
+          python3 -m pip install --upgrade pip
+          # install build system
+          python3 -m pip install build
+          # make source distribution
+          python3 -m build --sdist
+          
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
