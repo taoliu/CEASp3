@@ -42,15 +42,7 @@ except:
     sys.exit()
 
 from CEAS.bigwig_utils import open_bigwig
-import importlib.util
-import importlib.machinery
-from pathlib import Path
-
-_ceas_path = Path(__file__).resolve().parents[1] / "bin" / "ceas"
-_loader = importlib.machinery.SourceFileLoader("ceas_cli", str(_ceas_path))
-_spec = importlib.util.spec_from_loader(_loader.name, _loader)
-ceas_parser = importlib.util.module_from_spec(_spec)
-_loader.exec_module(ceas_parser)
+from CEAS import ceas as ceas_parser
 
 # ------------------------------------
 # constants
