@@ -25,7 +25,7 @@ import operator
 import itertools
 import subprocess
 import warnings
-
+from optparse import OptionParser
 import CEAS.inout as inout
 import CEAS.R as R
 import CEAS.annotator as annotator
@@ -34,7 +34,6 @@ import CEAS.profiler as profiler
 import CEAS.tables as tables
 import CEAS.corelib as corelib
 #from CEAS.inout import MYSQL
-from CEAS import ceas as ceas_parser
 
 # ------------------------------------
 # constants
@@ -58,11 +57,10 @@ info    = logging.info
 # Main function
 # ------------------------------------
 def main():
-
+    
     # read the options and validate them
-    parser = ceas_parser.get_parser()
-    options = opt_validate(parser)
-
+    options=opt_validate(prepare_optparser())
+    
     # print out the options
     info("\n" + options.argtxt)
 
@@ -748,18 +746,65 @@ def main():
         info ('#... cong! Run %s using R for the graphical results of CEAS! CEAS could not run R directly.' %(options.name+'.R'))
         
         
+# ------------------------------------
+# functions
+# ------------------------------------
+  
+def prepare_optparser ():
+    """Prepare optparser object. New options will be added in this
+    function first.
+    
+    """
+    
+    usage = "usage: %prog < input files > [options]"
+    description = "CEAS (Cis-regulatory Element Annotation System)"
+    
+    optparser = OptionParser(version="%prog -- 0.9.9.7 (package version 1.0.2)",description=description,usage=usage,add_help_option=False)
+    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
+    optparser.add_option("-b","--bed",dest="bed",type="string",
+                         help="BED file of ChIP regions.")
+    optparser.add_option("-w","--wig",dest="wig",type="string",
+                         help="WIG file for either wig profiling or genome background annotation. WARNING: --bg flag must be set for genome background re-annotation.")
+    optparser.add_option("-e","--ebed",dest="ebed",type="string",
+                         help="BED file of extra regions of interest (eg, non-coding regions)")
+    optparser.add_option("-g","--gt",dest="gdb",type="string",
+                         help="Gene annotation table (eg, a refGene table in sqlite3 db format provided through the CEAS web, http://liulab.dfci.harvard.edu/CEAS/download.html).")
+    optparser.add_option("--name",dest="name",\
+                         help="Experiment name. This will be used to name the output files. If an experiment name is not given, the stem of the input BED file name will be used instead (eg, if 'peaks.bed', 'peaks' will be used as a name.)")
+    optparser.add_option("--sizes",dest="sizes",type="str",
+                         help="Promoter (also dowsntream) sizes for ChIP region annotation. Comma-separated three values or a single value can be given. If a single value is given, it will be segmented into three equal fractions (ie, 3000 is equivalent to 1000,2000,3000), DEFAULT: 1000,2000,3000. WARNING: Values > 10000bp are automatically set to 10000bp.", default='1000,2000,3000')    
+    optparser.add_option("--bisizes",dest="bisizes",type="str",
+                         help="Bidirectional-promoter sizes for ChIP region annotation Comma-separated two values or a single value can be given. If a single value is given, it will be segmented into two equal fractions (ie, 5000 is equivalent to 2500,5000) DEFAULT: 2500,5000bp. WARNING: Values > 20000bp are automatically set to 20000bp.", default='2500,5000')  
+    optparser.add_option("--bg",action="store_true",dest="bg",\
+                         help="Run genome BG annotation again. WARNING: This flag is effective only if a WIG file is given through -w (--wig). Otherwise, ignored.",default=False)
+    optparser.add_option("--span", dest="span", type="int",\
+                         help="Span from TSS and TTS in the gene-centered annotation. ChIP regions within this range from TSS and TTS are considered when calculating the coverage rates in promoter and downstream, DEFAULT=3000bp", default=3000)         
+    optparser.add_option("--pf-res", dest="pf_res", type="int",\
+                          help="Wig profiling resolution, DEFAULT: 50bp. WARNING: Value smaller than the wig interval (resolution) may cause aliasing error.", default=50) 
+    optparser.add_option("--rel-dist",dest="rel_dist",type="int",
+                         help="Relative distance to TSS/TTS in wig profiling, DEFAULT: 3000bp", default=3000)   
+    optparser.add_option("--gn-groups",dest="gn_groups",type="string",\
+                         help="Gene-groups of particular interest in wig profiling. Each gene group file must have gene names in the 1st column. The file names are separated by commas w/ no space (eg, --gn-groups=top10.txt,bottom10.txt)") 
+    optparser.add_option("--gn-group-names", dest="gn_names",type="string",\
+                         help="The names of the gene groups in --gn-groups. The gene group names are separated by commas. (eg, --gn-group-names='top 10%,bottom 10%'). These group names appear in the legends of the wig profiling plots. If no group names given, the groups are represented as 'Group 1, Group2,...Group n'.")
+    optparser.add_option("--gname2", action="store_true", dest="name2",\
+                         help="Whether or not use the 'name2' column of the gene annotation table when reading the gene IDs in the files given through --gn-groups. This flag is meaningful only with --gn-groups.",default=False)
+    optparser.add_option("--dump", action="store_true", dest="dump",\
+                         help="Whether to save the raw profiles of near TSS, TTS, and gene body. The file names have a suffix of 'TSS', 'TTS', and 'gene' after the name.",default=False)
+    
+    return optparser
 
 
-def opt_validate (parser):
-    """Validate options from an ArgumentParser object.
+def opt_validate (optparser):
+    """Validate options from a OptParser object.
 
     Ret: Validated options object.
     """
-    options = parser.parse_args()
+    (options,args) = optparser.parse_args()
     
     # if gdb not given, print help, either BED or WIG must be given 
     if not options.gdb and not options.bed and not options.wig:
-        parser.print_help()
+        optparser.print_help()
         sys.exit(1)
     elif not options.gdb:
         error('A gene table file must be given through -g (--gt).')
